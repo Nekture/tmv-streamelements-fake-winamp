@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+    const CHANNEL_ID = "";
+    const JWT_TOKEN = "";
+    
+    const fetchOptions = { headers: { authorization: 'Bearer ' + JWT_TOKEN } };
+
+    let status =
+    {
+        id: null,
+        title: null,
+        visualTick: 0,
+        songLength: 0,
+        secondsPlaying: 0,
+        playing: false,
+        titleTooWide: false,
+        titleWidth: 0,
+        tickerPos: 0
+    };
+
+    let elements =
+    {
+        container: null,
+        title: null,
+        titleText: null,
+        progress: null,
+        digits: null
+    };
+
+
+    document.addEventListener("DOMContentLoaded", setup);
+
+    function setup()
+    {
+        elements.container = document.getElementById("winamp_container");
+        elements.title = document.getElementById("title");
+        elements.titleText = document.getElementById("titleText");
+        elements.progress = document.getElementById("progress");
+        elements.digits = document.getElementById("digits");
+
+        clockFetch = setInterval(checkAPI, 500);
+        clockVisual = setInterval(updateVisuals, 250);
+    }
+
+    async function checkAPI()
+    {
+        const responses = await Promise.all([
+            fetch("https://api.streamelements.com/kappa/v2/songrequest/" + CHANNEL_ID + "/player", fetchOptions),
+            fetch("https://api.streamelements.com/kappa/v2/songrequest/" + CHANNEL_ID + "/playing", fetchOptions)
+        ]);
+
+        const playerData = await responses[0].json();
+        const playingData = await responses[1].json();
+
+        // if currently playing changed
+        if (status.id != playingData._id)
+        {
+            status.id = playingData._id;
+            status.title = playingData.title;
+            status.songLength = parseInt(playingData.duration);
+            status.secondsPlaying = 0;
+            
+            status.visualTick = 0;
+            let title = status.title + " " + toMinutesAndSecondsString(status.songLength);
+            elements.titleText.textContent = title
+            status.titleWidth = elements.titleText.clientWidth;
+            if (status.titleWidth > 155)
+            {
+                status.titleTooWide = true;
+                elements.titleText.textContent += " *** ";
+                status.titleWidth = elements.titleText.clientWidth;
+                elements.titleText.textContent += title;
+            }
+            else 
+            {
+                status.titleTooWide = false;
+                status.tickerPos = 0;
+            }
+            
+        }
+
+        status.playing = (status.secondsPlaying <= status.songLength && playerData.state == "playing");
+    }
+
+    function updateVisuals()
+    {
+        // ASSUMING 250ms interval for updateVisuals
+        
+        if (!status.playing) 
+            elements.container.classList.add("paused");
+        else
+            elements.container.classList.remove("paused");
+
+        elements.titleText.style.marginLeft = "-" + status.tickerPos + "px";
+
+        // Once every second
+        if (status.playing && status.visualTick == 0)
+        {
+            // progress bar
+            if (status.songLength != 0)
+            {
+                let ratio = Math.min(1, (status.secondsPlaying / status.songLength));
+                elements.progress.style.backgroundPosition = "top left " +  Math.floor(220 * ratio) + "px";
+            }
+            else
+            {
+                elements.progress.style.backgroundPosition = "top left";
+            }
+
+            // digits
+            let seconds = status.secondsPlaying % 60;
+            let minutes = Math.floor(status.secondsPlaying / 60);
+
+            elements.digits.children.item(3).style.backgroundPosition = "top left -" + (seconds % 10) * 9 +"px";
+            elements.digits.children.item(2).style.backgroundPosition = "top left -" + Math.floor((seconds / 10)) * 9 +"px";
+            elements.digits.children.item(1).style.backgroundPosition = "top left -" + (minutes % 10) * 9 +"px";
+            elements.digits.children.item(0).style.backgroundPosition = "top left -" + Math.floor(((minutes % 100) / 10)) * 9 +"px";
+
+            // update for next cycle
+            status.secondsPlaying += 1;
+        }
+
+        if (status.titleTooWide)
+        {
+            status.tickerPos = (status.tickerPos + 5) % status.titleWidth;
+        }
+
+        // update ticks for NEXT cycle
+        status.visualTick = (status.visualTick + 1) % 4;
+    }
+
+
+    function toMinutesAndSecondsString(seconds)
+    {
+        let secondsText = seconds % 60;
+        if (secondsText < 10) secondsText = "0" + secondsText;
+        return "(" + Math.floor(seconds / 60) + ":" + secondsText+ ")";
+    }
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="winamp_container">
+    <div id="title"><span id="titleText"></span></div>
+    <div id="playpause"></div>
+    <div id="visualizer"></div>
+    <div id="progress"></div>
+    <div id="digits">
+        <div class="digit"></div>
+        <div class="digit"></div>
+        <div class="digit"></div>
+        <div class="digit"></div>
+    </div>
+</div>
+</body>
+</html>

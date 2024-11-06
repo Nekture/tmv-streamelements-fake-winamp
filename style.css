@@ -1,0 +1,164 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+/* Custom */
+
+#winamp_container
+{
+    image-rendering: pixelated;
+    width: 275px;
+    height: 116px;
+    background-image: url("img/bg.png");
+
+    font-family: sans-serif;
+    color: #00e200;
+    font-size: 9px;
+}
+
+#progress
+{
+    position: absolute;
+    left: 16px;
+    top: 72px;
+    width: 250px;
+    height: 10px;
+    background-image: url(img/knob.png);
+    background-repeat: no-repeat;
+    background-position: top left;
+}
+
+#title
+{
+    position: absolute;
+    left: 110px;
+    top: 26px;
+    width: 155px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#titleText
+{
+    display: inline-block;
+}
+
+#playpause
+{
+    position: absolute;
+    left: 24px;
+    top: 28px;
+    width: 11px;
+    height: 9px;
+    background-image: url(img/playpause.png);
+    background-repeat: no-repeat;
+    background-position: top left;
+}
+
+.paused > #playpause
+{
+    background-position: bottom left;
+}
+
+#digits
+{
+    position: absolute;
+    left: 48px;
+    top: 26px;
+    width: 51px;
+    height: 13px;
+    overflow: hidden;
+    font-size:0;
+    white-space: nowrap;
+}
+
+.paused > #digits
+{
+    animation: blink 2.5s infinite;
+}
+
+@keyframes blink
+{
+    0% { opacity: 1 }
+    50% { opacity: 1 }
+    50.1% { opacity: 0 } 
+    100% { opacity: 0 }
+}
+
+#visualizer
+{
+    position: absolute;
+    width: 71px;
+    height: 19px;
+    left: 24px;
+    top: 40px;
+    background-image: url(img/visualizer.gif);
+    background-repeat: no-repeat;
+}
+
+.paused > #visualizer
+{
+    display: none;
+}
+
+.digit
+{
+    display: inline-block;
+    width: 9px;
+    height: 13px;
+    margin-right: 3px;
+    background-image: url(img/numbers.png);
+    background-repeat: none;
+    background-position: top left;
+}
+
+.digit:nth-child(3)
+{
+    margin-left: 6px;
+}
